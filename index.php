@@ -1,23 +1,24 @@
 <?php
-ini_set('display_errors',1);
+ini_set('display_errors', 1);
 
 use core\Router;
 
-spl_autoload_register(function($className){
+spl_autoload_register(function ($className) {
     // fix linux addressing system
-    $className = str_replace("\\","/", $className);
-    require $className.'.php';
+    $className = str_replace('\\', '/', $className);
+    require $className . '.php';
 });
 
-$baseDir = "back/api/v1";
-// remove slash from last character if we have one.
-$request_uri = explode('/back/api/v1/',rtrim($_SERVER['REQUEST_URI'],'/'));
-$request_method = $_SERVER['REQUEST_METHOD'];
-
-if(!count($request_uri)==2){
-    echo json_encode('path template Error!');
-    return;
+$basePath = '/back/api/v1';
+// Remove trailing slash from requested uri
+$request_uri = rtrim($_SERVER['REQUEST_URI'], '/');
+if (strpos($request_uri, $basePath) === 0) {
+    $request_uri = substr($request_uri, strlen($basePath));
+} else {
+    throw new \InvalidArgumentException("Invalid base path in URI: URI does not start with expected prefix $basePath.");
 }
 
+$request_method = $_SERVER['REQUEST_METHOD'];
+
 $router = new Router();
-$router->matchRoute($request_uri[1], $request_method);
+$router->matchRoute($request_uri, $request_method);
