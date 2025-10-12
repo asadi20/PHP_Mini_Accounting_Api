@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace core;
 
 use PDO;
 use PDOException;
@@ -13,7 +13,7 @@ class Database
 
     private function __construct()
     {
-        require_once __DIR__ . '/config.php';
+        require_once __DIR__ . '/Config.php';
 
         $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET;
 
