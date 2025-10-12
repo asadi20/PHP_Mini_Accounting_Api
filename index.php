@@ -2,6 +2,7 @@
 ini_set('display_errors', 1);
 
 use core\Router;
+use core\Container;
 
 spl_autoload_register(function ($className) {
     // fix linux addressing system
@@ -19,6 +20,6 @@ if (strpos($request_uri, $basePath) === 0) {
 }
 
 $request_method = $_SERVER['REQUEST_METHOD'];
-
-$router = new Router();
+$container = new Container();
+$router = new Router($container);
 $router->matchRoute($request_uri, $request_method);
