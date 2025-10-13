@@ -5,7 +5,7 @@ class UserModel extends BaseModel
 {
     public int $id;
     public string $user_name;
-    public string $full_name;
+    public ?string $full_name;
     public ?string $email;
     public ?string $email_verified;
     public ?string $email_verified_at; //Nullable
