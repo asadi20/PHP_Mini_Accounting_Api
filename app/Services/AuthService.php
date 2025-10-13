@@ -72,8 +72,9 @@ class AuthService
             return Response::json(['error' => 'duplicate user!'], 200);
         }
 
-        // hash plain password with token
-        $userData['hashed_pwd'] = password_hash($userData['password'], PASSWORD_DEFAULT);
+        // hash plain password
+        $hashed_pwd = password_hash($userData['password'], PASSWORD_DEFAULT);
+        $userData['password'] = $hashed_pwd;
         $newUser = $this->userService->addNewUser($userData);
         if ($newUser === null) {
             throw new \Exception('error has been occured');
