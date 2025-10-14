@@ -21,9 +21,10 @@ class UserController
         $this->authorizationService = $authorizationService;
     }
 
-    public function index(): array
+    public function index(Request $request)
     {
-        echo $st = $this->authService->attemptLogin('asd', '123');
+        // TODO: show list of all users to the logined user
+        var_dump($request->getAuthenticatedUserId());
     }
 
     public function show(Request $request)

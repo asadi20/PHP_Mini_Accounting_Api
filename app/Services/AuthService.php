@@ -69,7 +69,7 @@ class AuthService
     {
         $userDup = $this->userService->getByUsername($userData['user_name']);
         if ($userDup) {
-            return Response::json(['error' => 'duplicate user!'], 200);
+            throw new \Exception('Duplicate user');
         }
 
         // hash plain password
