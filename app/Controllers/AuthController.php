@@ -28,9 +28,15 @@ class AuthController
             'password' => $req->input('password')
         ];
         // validate input fields.
-        $res = $this->authService->registerNewUser($userData);
-        echo $res;
-        return Response::json(['success' => 'new user created'], 200);
+        try {
+            $res = $this->authService->registerNewUser($userData);
+            return Response::json(['success'=>"user created with id: $res"], 201);
+        } catch(\Exception $e){
+            if($e->getMessage()==='Duplicate user'){
+                return Response::json(['error'=>'username that you want already exist'], 200);
+            }
+            return Response::json(['error'=>"Registration failed $e->getMessage()"],500);
+        }
     }
 
     public function login(Request $req)
