@@ -35,7 +35,7 @@ class AuthController
             if($e->getMessage()==='Duplicate user'){
                 return Response::json(['error'=>'username that you want already exist'], 200);
             }
-            return Response::json(['error'=>"Registration failed $e->getMessage()"],500);
+            return Response::json(['error'=>"Registration failed {$e->getMessage()}"],500);
         }
     }
 
