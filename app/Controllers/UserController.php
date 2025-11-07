@@ -24,24 +24,46 @@ class UserController
     public function index(Request $request)
     {
         // TODO: show list of all users to the logined user
-        var_dump($request->getAuthenticatedUserId());
+        // var_dump($request->getAuthenticatedUserId());
+        $users = $this->userService->getAllUsers();
+        return Response::json($users, 200);
     }
 
     public function show(Request $request)
     {
         // first we must get user id of token owner;
         // then with user id hided in token we pass it down in authorizationService->konnen
-        $userId = $request->getAuthenticatedUserId();
-        $kon = $this->authorizationService->konnen('user-view', $userId);
-        if (!$kon) {
+        //$userId = $request->getAuthenticatedUserId();
+        //$kon = $this->authorizationService->konnen('user-view', $userId);
+        //if (!$kon) {
             // 401 for unauthorized, 403 for forbidden;
-            return Response::json(['message' => 'You do not have access to show the requested user information'], 401);
-        }
+        //    return Response::json(['message' => 'You do not have access to show the requested user information'], 401);
+        //}
         $user_requested = $this->userService->show($request->routeParam('id'));
         if (!$user_requested) {
             return Response::json(['message' => 'user not found'], 404);
         }
-        return Response::json(array($user_requested), 200);
+        return Response::json($user_requested, 200);
+    }
+
+    public function update(Request $req): void
+    {
+        $userData = [
+            'id'=>$req->input('user_id'),
+            'user_name' => $req->input('user_name'),
+            'full_name' => $req->input('full_name'),
+            'email' => $req->input('email')
+        ];
+
+        $res = $this->userService->updateUser($userData);
+
+        $message = [
+            'data'=>$res,
+            'message'=> 'update_successful',
+            'error'=>''
+        ];
+
+        Response::json( $message,200);
     }
 
     public function assignRolesToUser(Request $req): ?int
