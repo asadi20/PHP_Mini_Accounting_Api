@@ -35,7 +35,7 @@ class AuthService
         return $this->authenticatedUser !== null;
     }
 
-    public function attemptlogin(string $username, string $password): string
+    public function attemptlogin(string $username, string $password): array|string|false
     {
         $user = $this->userService->getByUsername($username);
 
@@ -62,7 +62,7 @@ class AuthService
             'errors' => null,
             'code' => 'OK_200'
         ];
-        return json_encode($res);
+        return $res;
     }
 
     public function registerNewUser(array $userData)
