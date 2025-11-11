@@ -41,15 +41,32 @@ class AuthController
 
     public function login(Request $req)
     {
-        $username = $req->input('username');
-        $pass = $req->input('password');
+        $userData = [
+            'username'=> $req->input('username'),
+            'password'=> $req->input('password')
+        ];
 
-        if (empty($username) || empty($pass)) {
+        if (empty($userData['username']) || empty($userData['password'])) {
             echo json_encode(['error' => 'user name or password field empty']);
             return;
         }
-        $res = $this->authService->attemptLogin($username, $pass);
-        echo $res;
-        return;
+        $res = $this->authService->attemptLogin($userData['username'], $userData['password']);
+        if($res['success'] && isset($res['data']['token'])){
+            setcookie('token',$res['data']['token'],[
+               'httponly' => true,
+               'secure'=>true,
+               'samesite'=>'Strict',
+               'path'=>'/',
+               'expires'=> time()+3600
+            ]);
+            unset($res['data']['token']);
+        }
+        return Response::json($res, $res['code']);
+    }
+
+    public function checkToken(Request $req)
+    {
+        // TODO: Complete this section
+        return $req->server('HTTP_COOKIE');
     }
 }
