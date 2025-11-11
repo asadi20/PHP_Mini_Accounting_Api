@@ -10,7 +10,7 @@ class Request
     private array $server;
     private array $routeParams = [];
     private ?int $authenticatedUserId = null;
-    
+
 
     public function __construct()
     {
@@ -19,7 +19,7 @@ class Request
         $this->files = $_FILES;
         $this->server = $_SERVER;
 
-        // اگر Content-Type برابر application/json بود، داده‌ها رو از php://input بخون
+        // If Content-Type is application/json, read data from php://input
         if ($this->isJson()) {
             $raw = file_get_contents("php://input");
             $this->json = json_decode($raw, true) ?? [];
@@ -57,6 +57,14 @@ class Request
     public function uri(): string
     {
         return $this->server['REQUEST_URI'] ?? '/';
+    }
+
+    public function server(?string $key = null, $default = null): mixed
+    {
+        if ($key === null) {
+            return $this->server;
+        }
+        return $this->server[$key] ?? $default;
     }
 
     public function isJson(): bool
