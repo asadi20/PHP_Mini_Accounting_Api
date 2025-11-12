@@ -30,20 +30,20 @@ class AuthController
         // validate input fields.
         try {
             $res = $this->authService->registerNewUser($userData);
-            return Response::json(['success'=>"user created with id: $res"], 201);
-        } catch(\Exception $e){
-            if($e->getMessage()==='Duplicate user'){
-                return Response::json(['error'=>'username that you want already exist'], 200);
+            return Response::json(['success' => "user created with id: $res"], 201);
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'Duplicate user') {
+                return Response::json(['error' => 'username that you want already exist'], 200);
             }
-            return Response::json(['error'=>"Registration failed {$e->getMessage()}"],500);
+            return Response::json(['error' => "Registration failed {$e->getMessage()}"], 500);
         }
     }
 
     public function login(Request $req)
     {
         $userData = [
-            'username'=> $req->input('username'),
-            'password'=> $req->input('password')
+            'username' => $req->input('username'),
+            'password' => $req->input('password')
         ];
 
         if (empty($userData['username']) || empty($userData['password'])) {
@@ -51,22 +51,34 @@ class AuthController
             return;
         }
         $res = $this->authService->attemptLogin($userData['username'], $userData['password']);
-        if($res['success'] && isset($res['data']['token'])){
-            setcookie('token',$res['data']['token'],[
-               'httponly' => true,
-               'secure'=>true,
-               'samesite'=>'Strict',
-               'path'=>'/',
-               'expires'=> time()+3600
+        if ($res['success'] && isset($res['data']['token'])) {
+            setcookie('token', $res['data']['token'], [
+                'httponly' => true,
+                'secure' => true,
+                'samesite' => 'Strict',
+                'path' => '/',
+                'expires' => time() + 3600
             ]);
             unset($res['data']['token']);
         }
         return Response::json($res, $res['code']);
     }
 
-    public function checkToken(Request $req)
+    public function checkToken(Request $req): bool
     {
-        // TODO: Complete this section
-        return $req->server('HTTP_COOKIE');
+        $token = $req->server('HTTP_COOKIE');
+
+        if (!$token) {
+            // Send the response manually without exiting, then return false
+            header('Content-Type: application/json');
+            http_response_code(401);
+            echo json_encode(['error' => 'Authentication token missing or invalid.']);
+            return false;
+        }
+        // remove string token= from $token when receive it from front with credentian: include in JS
+        if (str_contains($token, 'token=')) {
+            $token = str_replace('token=', '', $token);
+        }
+        return $this->authService->validateToken($token);
     }
 }
