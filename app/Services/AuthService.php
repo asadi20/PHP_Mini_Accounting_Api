@@ -40,8 +40,15 @@ class AuthService
         $user = $this->userService->getByUsername($username);
 
         if (!$user || !$user->verifyPassword($password)) {
-            http_response_code(401);
-            return json_encode(['error' => 'user not found or password is incorrect']);
+            $res = [
+                'success' => false,
+                'message' => 'user not found or password is incorrect',
+                'data' => [],
+                'errors'=> null,
+                'code'=>'401'
+            ];
+
+            return $res;
         }
 
         $jwt = $this->jwtService->encode($user);
@@ -60,7 +67,7 @@ class AuthService
                 'perms' => $perms
             ],
             'errors' => null,
-            'code' => 'OK_200'
+            'code' => '200'
         ];
         return $res;
     }
@@ -80,5 +87,10 @@ class AuthService
             throw new \Exception('error has been occured');
         }
         return $newUser;
+    }
+
+    public function validateToken(string $token): bool
+    {
+        return $this->jwtService->decode($token);
     }
 }
