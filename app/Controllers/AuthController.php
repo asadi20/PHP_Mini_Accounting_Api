@@ -64,21 +64,38 @@ class AuthController
         return Response::json($res, $res['code']);
     }
 
-    public function checkToken(Request $req): bool
+    public function checkToken(Request $req): array
     {
-        $token = $req->server('HTTP_COOKIE');
+        $token = $req->input('token');
 
         if (!$token) {
-            // Send the response manually without exiting, then return false
-            header('Content-Type: application/json');
-            http_response_code(401);
-            echo json_encode(['error' => 'Authentication token missing or invalid.']);
-            return false;
+            $data = [
+                'success'=> false,
+                'message'=> 'Authentication token missing or invalid.',
+                'data'=> '',
+                'errors'=> null,
+                'code'=>200
+            ];
+            return Response::json($data, $data['code']);
         }
-        // remove string token= from $token when receive it from front with credentian: include in JS
-        if (str_contains($token, 'token=')) {
-            $token = str_replace('token=', '', $token);
+        $decoded = $this->authService->validateToken($token);
+        if (is_array($decoded) && !empty($decoded)) {
+            $data = [
+                'success'=> true,
+                'message'=> 'toekn is valid.',
+                'data'=> $decoded,
+                'errors'=> null,
+                'code'=>200
+            ];
+            return Response::json($data, $data['code']);
         }
-        return $this->authService->validateToken($token);
+        $data = [
+                'success'=> false,
+                'message'=> 'toekn is not valid.',
+                'data'=> '',
+                'errors'=> null,
+                'code'=>200
+            ];
+            return Response::json($data, $data['code']);
     }
 }
