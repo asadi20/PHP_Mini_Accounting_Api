@@ -89,7 +89,7 @@ class AuthService
         return $newUser;
     }
 
-    public function validateToken(string $token): bool
+    public function validateToken(string $token): array|bool
     {
         return $this->jwtService->decode($token);
     }
