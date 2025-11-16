@@ -38,7 +38,7 @@ class JwtService
         return $jwt;
     }
 
-    public function decode(string $token)
+    public function decode(string $token): array|bool
     {
         if (empty($token))
         {
@@ -76,7 +76,7 @@ class JwtService
             return Response::json(['error'=>'Expiration time not set'],401);
         }
         // for testing purpose
-        if($decodedPayload['exp']>time())
+        if($decodedPayload['exp']<time())
         {
             return Response::json(['error'=>'your token has been expired'], 401);
         }
