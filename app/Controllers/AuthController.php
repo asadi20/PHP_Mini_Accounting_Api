@@ -51,16 +51,17 @@ class AuthController
             return;
         }
         $res = $this->authService->attemptLogin($userData['username'], $userData['password']);
-        if ($res['success'] && isset($res['data']['token'])) {
-            setcookie('token', $res['data']['token'], [
-                'httponly' => true,
-                'secure' => true,
-                'samesite' => 'Strict',
-                'path' => '/',
-                'expires' => time() + 3600
-            ]);
-            unset($res['data']['token']);
+        if (!$res['success'] || !isset($res['data']['token'])) {
+            echo json_encode(['error' => $res['message']]);
         }
+        setcookie('token', $res['data']['token'], [
+            'httponly' => true,
+            'secure' => true,
+            'samesite' => 'Strict',
+            'path' => '/',
+            'expires' => time() + 3600
+        ]);
+        //unset($res['data']['token']);
         return Response::json($res, $res['code']);
     }
 
@@ -70,32 +71,32 @@ class AuthController
 
         if (!$token) {
             $data = [
-                'success'=> false,
-                'message'=> 'Authentication token missing or invalid.',
-                'data'=> '',
-                'errors'=> null,
-                'code'=>200
+                'success' => false,
+                'message' => 'Authentication token missing or invalid.',
+                'data' => '',
+                'errors' => null,
+                'code' => 200
             ];
             return Response::json($data, $data['code']);
         }
         $decoded = $this->authService->validateToken($token);
         if (is_array($decoded) && !empty($decoded)) {
             $data = [
-                'success'=> true,
-                'message'=> 'toekn is valid.',
-                'data'=> $decoded,
-                'errors'=> null,
-                'code'=>200
+                'success' => true,
+                'message' => 'toekn is valid.',
+                'data' => $decoded,
+                'errors' => null,
+                'code' => 200
             ];
             return Response::json($data, $data['code']);
         }
         $data = [
-                'success'=> false,
-                'message'=> 'toekn is not valid.',
-                'data'=> '',
-                'errors'=> null,
-                'code'=>200
-            ];
-            return Response::json($data, $data['code']);
+            'success' => false,
+            'message' => 'toekn is not valid.',
+            'data' => '',
+            'errors' => null,
+            'code' => 200
+        ];
+        return Response::json($data, $data['code']);
     }
 }
