@@ -52,7 +52,7 @@ class AuthController
         }
         $res = $this->authService->attemptLogin($userData['username'], $userData['password']);
         if (!$res['success'] || !isset($res['data']['token'])) {
-            echo json_encode(['error' => $res['message']]);
+            return Response::json($res, $res['code']);
         }
         setcookie('token', $res['data']['token'], [
             'httponly' => true,
@@ -65,9 +65,37 @@ class AuthController
         return Response::json($res, $res['code']);
     }
 
+    public function logout(Request $req)
+    {
+        setcookie('token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'domain' => '', // خالی = دامنه فعلی
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Strict',
+        ]);
+
+        return Response::json([
+            'success' => true,
+            'message' => 'با موفقیت خارج شدید'
+        ], 200);
+    }
+
     public function checkToken(Request $req): array
     {
-        $token = $req->input('token');
+        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $authHeader = $headers['Authorization'] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? null;
+        if ($authHeader === null) {
+            return Response::json(['message' => 'Authorization header missing'], 401);
+        }
+
+        if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            return Response::json(['message' => 'Invalid Ahutorization format.'], 401);
+        }
+
+        // to get token from header;
+        $token = $matches[1];
 
         if (!$token) {
             $data = [
