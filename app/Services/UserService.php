@@ -4,7 +4,7 @@ namespace app\Services;
 
 use app\Repositories\RbacRepository;
 use app\Repositories\UserRepository;
-
+use app\Models\UserModel;
 class UserService
 {
     private UserRepository $userRepository;
@@ -20,6 +20,11 @@ class UserService
     {
         $user = $this->userRepository->findByUserId($id);
         return $user;
+    }
+
+    public function getAllUsers(): ?array
+    {
+        return $this->userRepository->findAllUsers();
     }
 
     public function getByUsername(string $username)
@@ -55,6 +60,12 @@ class UserService
     public function assignRolesToPermissions($rolesId, $permissionsId): ?int
     {
         $res = $this->rbacRepository->assignRolestoPermissions($rolesId, $permissionsId);
+        return $res;
+    }
+
+    public function updateUser(array $userData): ?string
+    {
+        $res = $this->userRepository->updateUser($userData);
         return $res;
     }
 }
