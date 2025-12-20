@@ -21,13 +21,13 @@ class Router
     {
         $this->container = $container;
 
-        $this->addRoute('/users', 'GET', UserController::class, 'index',[JwtAuthMiddleware::class]);
-        //$this->addRoute('/user/(\d+)', 'GET', UserController::class, 'show', [JwtAuthMiddleware::class]);
-        $this->addRoute('/user/(\d+)', 'GET', UserController::class, 'show',[JwtAuthMiddleware::class]);
+        $this->addRoute('/users', 'GET', UserController::class, 'index');
+        $this->addRoute('/user/(\d+)', 'GET', UserController::class, 'show', [JwtAuthMiddleware::class]);
         $this->addRoute('/user', 'POST', UserController::class, 'update');
         $this->addRoute('/user/addNewUser', 'POST', UserController::class, 'addNewUser', [JwtAuthMiddleware::class]);
         $this->addRoute('/', 'GET', HomeController::class, 'index');
         $this->addRoute('/login', 'POST', AuthController::class, 'login');
+        $this->addRoute('/logout', 'POST',AuthController::class,'logout');
         $this->addRoute('/register', 'POST', AuthController::class, 'register');
         $this->addRoute('/assign_roles', 'POST', UserController::class, 'assignRolesToUser', [JwtAuthMiddleware::class]);
         $this->addRoute('/assign_roles_perms', 'POST', UserController::class, 'assignRolesToPermissions', [JwtAuthMiddleware::class]);
