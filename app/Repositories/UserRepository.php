@@ -78,4 +78,35 @@ class UserRepository implements UserRepositoryInterface
             throw $e;
         }
     }
+
+    public function findAllUsers(): array
+    {
+        $sql = 'SELECT * FROM users';
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_CLASS, UserModel::class);
+        // fetchAll always return array even it's empty return empty array []
+        return $stmt->fetchAll();
+    }
+
+    public function updateUser($userData) : string|null
+    {
+        $sql = 'UPDATE users SET user_name= :user_name, full_name= :full_name, email= :email WHERE id = :id;';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue('user_name', $userData['user_name'], PDO::PARAM_STR);
+        $stmt->bindValue('full_name', $userData['full_name'], PDO::PARAM_STR);
+        $stmt->bindValue('email', $userData['email'], PDO::PARAM_STR);
+        $stmt->bindValue('id', $userData['id'], PDO::PARAM_INT);
+
+        try {
+            $stmt->execute();
+            if ($stmt->rowCount() >0 ) {
+                return $stmt->rowCount();
+            } else {
+                return null;
+            }
+        } catch (\PDOException $e) {
+            throw $e;
+        }
+    }
 }
