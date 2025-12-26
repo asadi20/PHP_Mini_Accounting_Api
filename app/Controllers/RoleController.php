@@ -38,30 +38,19 @@ class RoleController
         $name = $req->input('name');
         $desc = $req->input('description');
 
-        try {
-            $role = $this->roleRepository->updateRole($roleId, $name, $desc);
-            if ($role === 0) {
-                return Response::json([
-                    'success' => false,
-                    'message' => 'هیچ تغییری اعمال نشد یا نقش یافت نشد'
-                ], 404);
-            }
+        $res = $this->roleRepository->updateRole($roleId, $name, $desc);
+        return Response::json(['message'=>'success', 'data'=> $res], 200);
+    }
 
-            return Response::json([
-                'success' => true,
-                'message' => 'نقش با موفقیت به‌روزرسانی شد',
-                'data' => [
-                    'affected_rows' => $role,
-                    'role_id' => $roleId
-                ]
-            ], 200);
+     public function updateRoleWithPermissions(Request $req)
+    {
+        $roleId = $req->routeParam('id');
+        $name = $req->input('name');
+        $desc = $req->input('description');
+        $permIds = $req->input('permissions');
 
-        } catch (\Exception $e) {
-            return Response::json([
-                'success' => false,
-                'message' => 'خطا در سرور'
-            ], 500);
-        }
+        $res = $this->roleRepository->updateRoleWithPermissions($roleId, $name, $desc, $permIds);
+        return Response::json($res, 200);
     }
 
     public function addRole(Request $req)
@@ -75,6 +64,10 @@ class RoleController
     {
         $uid = $request->routeParam('id');
         $roles = $this->rbacService->getRolesByUserId($uid);
-        return Response::json($roles, 200);
+        return Response::json([
+            'success'=>true,
+            'message' => 'Roles by user id',
+            'data'=> $roles
+        ], 200);
     }
 }
