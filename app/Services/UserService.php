@@ -57,9 +57,9 @@ class UserService
         return $roles;
     }
 
-    public function assignRolesToPermissions($rolesId, $permissionsId): ?int
+    public function assignPermissionsToRole($roleId, $permissionsId): ?int
     {
-        $res = $this->rbacRepository->assignRolestoPermissions($rolesId, $permissionsId);
+        $res = $this->rbacRepository->updateRoleWithPermissions($roleId, $permissionsId);
         return $res;
     }
 
