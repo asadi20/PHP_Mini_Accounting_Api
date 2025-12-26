@@ -21,10 +21,8 @@ class UserController
         $this->authorizationService = $authorizationService;
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        // TODO: show list of all users to the logined user
-        // var_dump($request->getAuthenticatedUserId());
         $users = $this->userService->getAllUsers();
         return Response::json($users, 200);
     }
@@ -36,7 +34,7 @@ class UserController
         //$userId = $request->getAuthenticatedUserId();
         //$kon = $this->authorizationService->konnen('user-view', $userId);
         //if (!$kon) {
-            // 401 for unauthorized, 403 for forbidden;
+        // 401 for unauthorized, 403 for forbidden;
         //    return Response::json(['message' => 'You do not have access to show the requested user information'], 401);
         //}
         $user_requested = $this->userService->show($request->routeParam('id'));
@@ -49,21 +47,22 @@ class UserController
     public function update(Request $req): void
     {
         $userData = [
-            'id'=>$req->input('user_id'),
+            'id' => $req->input('user_id'),
             'user_name' => $req->input('user_name'),
             'full_name' => $req->input('full_name'),
-            'email' => $req->input('email')
+            'email' => $req->input('email'),
+            'roles' => $req->input('roles')
         ];
 
         $res = $this->userService->updateUser($userData);
 
         $message = [
-            'data'=>$res,
-            'message'=> 'update_successful',
-            'error'=>''
+            'data' => $res,
+            'message' => 'update_successful',
+            'error' => ''
         ];
 
-        Response::json( $message,200);
+        Response::json($message, 200);
     }
 
     public function assignRolesToUser(Request $req): ?int
@@ -74,12 +73,23 @@ class UserController
         return Response::json(['message' => $roles . ' row(s) affected.']);
     }
 
-    public function assignRolesToPermissions(Request $req): ?array
+    public function assignPermissionsToRole(Request $req): ?array
     {
-        $rolesId = $req->input('roleId');
-        $permissionsId = $req->input('permissionId');
-        $res = $this->userService->assignRolesToPermissions($rolesId, $permissionsId);
-        return Response::json(['message' => $res . ' row(s) affected.']);
+        $roleId = $req->routeParam('id');
+        //$data = $req->all(); // یا validation
+
+        // آپدیت نام و توضیح نقش
+        //$this->roleRepository->updateRole($roleId, $data['name'], $data['description'] ?? null);
+
+        // sync پرمیشن‌ها
+        $permissions = $req->input('permissions') ?? []; // آرایه id پرمیشن‌ها از فرم
+        $affected = $this->userService->assignPermissionsToRole($roleId, $permissions);
+
+        return Response::json([
+            'success' => true,
+            'message' => 'نقش و پرمیشن‌ها با موفقیت ذخیره شد',
+            'data' => ['affected_permissions' => $affected]
+        ], 200);
     }
 
     public function addNewUser(Request $request): ?int
