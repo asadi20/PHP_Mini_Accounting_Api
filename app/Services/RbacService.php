@@ -5,17 +5,11 @@ use app\Repositories\RbacRepository;
 
 class RbacService
 {
-    private RoleRepository $roleRepository;
-    private PermissionRepository $permissionRepository;
     private RbacRepository $rbacRepository;
 
-    public function __construct(RoleRepository $roleRepository,
-        PermissionRepository $permissionRepository,
-        RbacRepository $rbacRepository)
+    public function __construct(RbacRepository $rbacRepository)
     {
-        $this->RoleRepository = $roleRepository;
-        $this->PermissionRepository = $permissionRepository;
-        $this->rbacrepository = $rbacRepository;
+        $this->rbacRepository = $rbacRepository;
     }
 
     public function getRoleByUserName(string $userName)
@@ -23,9 +17,10 @@ class RbacService
         return $userName;
     }
 
-    public function getRolesByUserId(int $userId)
+    public function getRolesByUserId(int $userId): array|null
     {
         $roles = $this->rbacRepository->findRolesByUserId($userId);
+        return $roles;
     }
 
     /**
@@ -33,8 +28,9 @@ class RbacService
      * @param int $roleId
      * @return array $permissions
      */
-    public function getPermissionByRoleId(int $roleId): array
+    public function getPermissionsByRoleId(int $roleId): array
     {
-        return $roleId;
+        $perms = $this->rbacRepository->findPermissionsByRoleId($roleId);
+        return $perms;
     }
 }
