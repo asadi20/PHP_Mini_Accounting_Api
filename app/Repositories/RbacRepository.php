@@ -6,7 +6,6 @@ use PDO;
 class RbacRepository implements RbacRepositoryInterface
 {
     private PDO $db;
-
     public function __construct(PDO $db)
     {
         $this->db = $db;
@@ -24,7 +23,7 @@ class RbacRepository implements RbacRepositoryInterface
         where role_user.user_id= :user_id';
 
         $stmt = $this->db->prepare($qry);
-        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
         $stmt->execute();
         $roles = $stmt->fetchAll();
         return $roles;
@@ -49,7 +48,7 @@ class RbacRepository implements RbacRepositoryInterface
             $perms = $stmt->fetchAll();
             return $perms;
         } catch (\PDOException $e) {
-            return $e->getmessage();
+            throw $e;
         }
     }
 
@@ -70,6 +69,18 @@ class RbacRepository implements RbacRepositoryInterface
         } catch (\PDOException $e) {
             return $e->getmessage();
         }
+    }
+
+    public function findPermissionsByRoleId(int $roleId)
+    {
+        $qry = 'SELECT permission_role.permission_id, permissions.name FROM permission_role
+        LEFT JOIN permissions ON permission_role.permission_id = permissions.id
+         WHERE permission_role.role_id = :role_id';
+        $stmt = $this->db->prepare($qry);
+        $stmt->bindValue(':role_id', $roleId, PDO::PARAM_INT);
+        $stmt->execute();
+        $res = $stmt->fetchAll();
+        return $res;
     }
 
     /**
@@ -97,41 +108,5 @@ class RbacRepository implements RbacRepositoryInterface
                 echo 'Error has been occured, please contact your administrator.';
             }
         }
-    }
-
-    /**
-     * assign Roles to Permissions this many to many realtion;
-     * @param array $rolesId
-     * @param array $permissionId
-     * @return int $affectedRows
-     */
-    public function assignRolesToPermissions(array $rolesId, array $permissionsId): ?int
-    {
-        $counter = 0;
-        $values = [];
-        $params = [];
-        foreach ($rolesId as $roleId) {
-            foreach ($permissionsId as $permId) {
-                $counter++;
-                $values[] = ("(:permission_id{$counter}, :role_id{$counter})");
-                $params[":permission_id{$counter}"] = $permId;
-                $params[":role_id{$counter}"] = $roleId;
-            }
-        }
-        if (empty($values)) {
-            return null;  // or 0 means no combination to insert.
-        }
-        $qry = 'INSERT IGNORE INTO permission_role (permission_id, role_id) values ' . implode(',', $values) . ';';
-        try {
-            $stmt = $this->db->prepare($qry);
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value, PDO::PARAM_INT);
-            }
-            $stmt->execute();
-            $affectedRows = $stmt->rowCount();
-        } catch (\PDOException $e) {
-            throw $e->getmessage();
-        }
-        return $affectedRows;
     }
 }
