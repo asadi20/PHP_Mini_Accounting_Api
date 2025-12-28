@@ -49,12 +49,12 @@ class Request
         return $this->server[$key] ?? null;
     }
 
-    public function method(): string
+    public function getMethod(): string
     {
         return strtoupper($this->server['REQUEST_METHOD'] ?? 'GET');
     }
 
-    public function uri(): string
+    public function getUri(): string
     {
         return $this->server['REQUEST_URI'] ?? '/';
     }
