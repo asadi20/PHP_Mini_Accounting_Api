@@ -29,14 +29,6 @@ class UserController
 
     public function show(Request $request)
     {
-        // first we must get user id of token owner;
-        // then with user id hided in token we pass it down in authorizationService->konnen
-        //$userId = $request->getAuthenticatedUserId();
-        //$kon = $this->authorizationService->konnen('user-view', $userId);
-        //if (!$kon) {
-        // 401 for unauthorized, 403 for forbidden;
-        //    return Response::json(['message' => 'You do not have access to show the requested user information'], 401);
-        //}
         $user_requested = $this->userService->show($request->routeParam('id'));
         if (!$user_requested) {
             return Response::json(['message' => 'user not found'], 404);
@@ -44,33 +36,33 @@ class UserController
         return Response::json($user_requested, 200);
     }
 
-    public function update(Request $req): void
+    /**
+     * Summary of updateUserWithRoles: update user information with assign roles to the specific user
+     * @param Request $req
+     * @return void
+     */
+    public function updateUserWithRoles(Request $req): void
     {
+        // roles in array that store roles related to the user
         $userData = [
-            'id' => $req->input('user_id'),
+            'id' => $req->routeParam('id'),
             'user_name' => $req->input('user_name'),
             'full_name' => $req->input('full_name'),
             'email' => $req->input('email'),
+            'phone' => $req->input('phone'),
             'roles' => $req->input('roles')
         ];
 
-        $res = $this->userService->updateUser($userData);
+        $res = $this->userService->updateUserWithRoles($userData);
 
         $message = [
+            'success'=>true,
             'data' => $res,
             'message' => 'update_successful',
             'error' => ''
         ];
 
         Response::json($message, 200);
-    }
-
-    public function assignRolesToUser(Request $req): ?int
-    {
-        $userId = $req->input('userId');
-        $rolesId = $req->input('roleId');
-        $roles = $this->userService->assignRolesToUser($userId, $rolesId);
-        return Response::json(['message' => $roles . ' row(s) affected.']);
     }
 
     public function assignPermissionsToRole(Request $req): ?array
