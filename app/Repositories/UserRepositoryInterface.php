@@ -10,5 +10,5 @@ interface UserRepositoryInterface
     public function findByUsername(string $username): ?UserModel;
     public function addNewUser(array $userData): string|null;
     public function findAllUsers(): array;
-    public function updateUser(array $userData) : string|null;
+    public function updateUserWithRoles(array $userData): ?array;
 }
