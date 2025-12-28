@@ -50,22 +50,15 @@ class UserService
         $user = $this->userRepository->addNewUser($userData);
         return $user;
     }
+    //public function assignPermissionsToRole($roleId, $permissionsId): ?int
+    //{
+    //    $res = $this->rbacRepository->updateRoleWithPermissions($roleId, $permissionsId);
+    //    return $res;
+    //}
 
-    public function assignRolesToUser($userId, $rolesId): ?int
+    public function updateUserWithRoles(array $userData): ?array
     {
-        $roles = $this->rbacRepository->assignRolesToUser($userId, $rolesId);
-        return $roles;
-    }
-
-    public function assignPermissionsToRole($roleId, $permissionsId): ?int
-    {
-        $res = $this->rbacRepository->updateRoleWithPermissions($roleId, $permissionsId);
-        return $res;
-    }
-
-    public function updateUser(array $userData): ?string
-    {
-        $res = $this->userRepository->updateUser($userData);
+        $res = $this->userRepository->updateUserWithRoles($userData);
         return $res;
     }
 }
